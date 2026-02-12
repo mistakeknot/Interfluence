@@ -1,4 +1,7 @@
 node_modules/
-dist/
 .interfluence/
 *.log
+
+# dist/ is gitignored except for the bundle (required for plugin install)
+server/dist/*
+!server/dist/bundle.js

@@ -6,7 +6,7 @@
   "mcpServers": {
     "interfluence": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_DIR}/server/dist/index.js"],
+      "args": ["${CLAUDE_PLUGIN_DIR}/server/dist/bundle.js"],
       "env": {}
     }
   }
