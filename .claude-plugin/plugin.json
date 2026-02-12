@@ -2,11 +2,12 @@
   "name": "interfluence",
   "version": "0.1.0",
   "description": "Analyze your writing style and adapt Claude's output to sound like you. Ingest writing samples, build a voice profile, and apply it to any human-facing documentation or copy.",
-  "author": {"name": "mistakeknot"},
+  "author": {"name": "mistakeknot", "email": "mistakeknot@vibeguider.org"},
   "mcpServers": {
     "interfluence": {
+      "type": "stdio",
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_DIR}/server/dist/bundle.js"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/dist/bundle.js"],
       "env": {}
     }
   }
