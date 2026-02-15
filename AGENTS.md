@@ -1,4 +1,4 @@
-# Interfluence — Agent Development Guide
+# interfluence — Agent Development Guide
 
 Voice profile plugin for Claude Code. Analyzes a user's writing corpus and adapts AI-generated documentation/copy to match their style.
 

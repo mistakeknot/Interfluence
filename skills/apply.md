@@ -3,7 +3,7 @@ description: Rewrite a file or text in the user's voice using the voice profile.
 allowed-tools: mcp_interfluence_profile_get, Read, Write, Edit
 ---
 
-# Interfluence: Apply Voice Profile
+# interfluence: Apply Voice Profile
 
 You are rewriting content to match the user's writing voice as defined in their voice profile.
 

@@ -3,7 +3,7 @@ description: Review and refine the voice profile interactively. Use when the use
 allowed-tools: mcp_interfluence_profile_get, mcp_interfluence_profile_save, mcp_interfluence_learnings_get_raw, mcp_interfluence_learnings_clear_raw, Read, Edit
 ---
 
-# Interfluence: Refine Voice Profile
+# interfluence: Refine Voice Profile
 
 You are helping the user review and refine their voice profile through interactive dialogue.
 

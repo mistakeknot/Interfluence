@@ -1,10 +1,10 @@
-# Interfluence
+# interfluence
 
 A Claude Code plugin that learns how you write and makes Claude sound like you.
 
 ## What This Is
 
-I find that Claude is excellent at generating documentation, READMEs, commit messages, and all the other text artifacts that accrue around a software project — but it doesn't sound like *me*. It sounds like a helpful, slightly over-eager assistant who has read too many style guides and not enough actual blog posts. Interfluence fixes that.
+I find that Claude is excellent at generating documentation, READMEs, commit messages, and all the other text artifacts that accrue around a software project — but it doesn't sound like *me*. It sounds like a helpful, slightly over-eager assistant who has read too many style guides and not enough actual blog posts. interfluence fixes that.
 
 You feed it samples of your writing (blog posts, docs, even emails if you're feeling brave), it builds a voice profile, and then you can apply that profile to anything Claude generates. The profile is prose, not numbers — turns out Claude follows "use em dashes for mid-sentence pivots and drop cultural references without explaining them" much better than "formality: 0.6, humor: 0.4."
 
@@ -12,7 +12,7 @@ You feed it samples of your writing (blog posts, docs, even emails if you're fee
 
 The plugin has an MCP server that handles all the boring file management (corpus storage, profile CRUD, config), and Claude does all the actual NLP. This is a deliberate split: the server is a filing cabinet, Claude is the literary analyst. The voice analyzer runs on Opus and produces genuinely interesting analysis — it picks up on things like your relationship to parenthetical asides, whether you tend to front-load or back-load your punchlines, and which cultural references you reach for when you need a metaphor.
 
-There's also a passive learning hook that quietly logs your edit diffs whenever you change something Claude wrote. Over time, those diffs tell Interfluence what you keep fixing — and the next time you run `/interfluence refine`, it folds those patterns back into your profile. Capability is forged, not absorbed; the profile gets better as you use it.
+There's also a passive learning hook that quietly logs your edit diffs whenever you change something Claude wrote. Over time, those diffs tell interfluence what you keep fixing — and the next time you run `/interfluence refine`, it folds those patterns back into your profile. Capability is forged, not absorbed; the profile gets better as you use it.
 
 ## Getting Started
 

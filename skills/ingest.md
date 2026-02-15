@@ -1,11 +1,11 @@
 ---
-description: Add writing samples to the Interfluence corpus. Use when the user says "ingest", "add writing sample", "analyze my writing from", "add my blog post", or provides a URL/path to their writing.
+description: Add writing samples to the interfluence corpus. Use when the user says "ingest", "add writing sample", "analyze my writing from", "add my blog post", or provides a URL/path to their writing.
 allowed-tools: mcp_interfluence_corpus_add, mcp_interfluence_corpus_add_text, mcp_interfluence_corpus_list, Read, WebFetch, Glob
 ---
 
-# Interfluence: Ingest Writing Samples
+# interfluence: Ingest Writing Samples
 
-You are ingesting writing samples into the Interfluence corpus for voice analysis.
+You are ingesting writing samples into the interfluence corpus for voice analysis.
 
 ## Process
 

@@ -3,7 +3,7 @@ description: Compare AI-generated text against the user's voice profile. Use whe
 allowed-tools: mcp_interfluence_profile_get, Read
 ---
 
-# Interfluence: Compare Voice Match
+# interfluence: Compare Voice Match
 
 You are comparing a piece of text against the user's voice profile to assess how well it matches.
 

@@ -3,7 +3,7 @@ description: Generate or update a voice profile from the writing corpus. Use whe
 allowed-tools: mcp_interfluence_corpus_get_all, mcp_interfluence_corpus_list, mcp_interfluence_profile_get, mcp_interfluence_profile_save, mcp_interfluence_learnings_get_raw, Task
 ---
 
-# Interfluence: Analyze Writing & Generate Voice Profile
+# interfluence: Analyze Writing & Generate Voice Profile
 
 You are analyzing the user's writing corpus to generate a comprehensive voice profile.
 

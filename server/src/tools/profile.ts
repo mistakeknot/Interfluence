@@ -9,14 +9,14 @@ import {
 } from "../utils/paths.js";
 import yaml from "js-yaml";
 
-export interface InterfluenceConfig {
+export interface interfluenceConfig {
   mode: "auto" | "manual";
   autoApplyTo: string[];
   exclude: string[];
   learnFromEdits: boolean;
 }
 
-const DEFAULT_CONFIG: InterfluenceConfig = {
+const DEFAULT_CONFIG: interfluenceConfig = {
   mode: "manual",
   autoApplyTo: ["*.md", "CHANGELOG*", "docs/**"],
   exclude: ["CLAUDE.md", "AGENTS.md", ".interfluence/**"],
@@ -75,16 +75,16 @@ export function registerProfileTools(server: McpServer): void {
 
   server.tool(
     "config_get",
-    "Get the current Interfluence configuration.",
+    "Get the current interfluence configuration.",
     {
       projectDir: z.string().describe("Absolute path to the project directory"),
     },
     async ({ projectDir }) => {
       const configPath = getConfigPath(projectDir);
 
-      let config: InterfluenceConfig;
+      let config: interfluenceConfig;
       if (existsSync(configPath)) {
-        config = yaml.load(readFileSync(configPath, "utf-8")) as InterfluenceConfig;
+        config = yaml.load(readFileSync(configPath, "utf-8")) as interfluenceConfig;
       } else {
         config = DEFAULT_CONFIG;
       }
@@ -102,7 +102,7 @@ export function registerProfileTools(server: McpServer): void {
 
   server.tool(
     "config_save",
-    "Save the Interfluence configuration.",
+    "Save the interfluence configuration.",
     {
       projectDir: z.string().describe("Absolute path to the project directory"),
       mode: z.enum(["auto", "manual"]).optional(),
@@ -113,9 +113,9 @@ export function registerProfileTools(server: McpServer): void {
     async ({ projectDir, mode, autoApplyTo, exclude, learnFromEdits }) => {
       const configPath = getConfigPath(projectDir);
 
-      let config: InterfluenceConfig;
+      let config: interfluenceConfig;
       if (existsSync(configPath)) {
-        config = yaml.load(readFileSync(configPath, "utf-8")) as InterfluenceConfig;
+        config = yaml.load(readFileSync(configPath, "utf-8")) as interfluenceConfig;
       } else {
         config = { ...DEFAULT_CONFIG };
       }

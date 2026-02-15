@@ -1,4 +1,4 @@
-# Interfluence
+# interfluence
 
 Voice profile plugin for Claude Code. Analyzes writing samples, builds a style profile, and adapts AI-generated text to sound like you.
 
