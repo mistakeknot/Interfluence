@@ -1,0 +1,15 @@
+{
+  "module_summary": "Interfluence provides voice and style adaptation by profile, giving outputs that fit project conventions.",
+  "roadmap": {
+    "now": [
+      {"id": "IFLE-N1", "title": "Improve voice-profile feature stability on short profile sample sets.", "priority": "P1"}
+    ],
+    "next": [
+      {"id": "IFLE-N2", "title": "Enable profile export/import for per-repo or per-team style governance.", "priority": "P2"},
+      {"id": "IFLE-N3", "title": "Add confidence metrics for style adaptation suggestions.", "priority": "P2"},
+      {"id": "IFLE-L1", "title": "Introduce style-aware output gating inside interphase workflow.", "priority": "P2"}
+    ],
+    "later": [
+    ]
+  }
+}
