@@ -158,3 +158,17 @@ bd close <id>
 - Notion API direct ingestion
 - Profile export/import
 - Incremental analysis (`--incremental` flag)
+
+## Operational Notes
+
+### MCP Server Bundling
+- MCP server is bundled with esbuild into `server/dist/bundle.js` (committed for zero-install)
+- MCP servers with npm dependencies MUST be bundled — plugin install only clones, no build step runs
+- `author` in plugin.json must be an object, not a string (causes install failure)
+
+### Writing Sample Ingestion
+- WebFetch summarizes instead of returning raw text; use `curl` + Python HTML parser for full extraction
+
+### Marketplace Publishing
+- Local marketplace working copy is NOT what Claude Code reads — it uses a cached clone
+- After pushing marketplace changes, cache must be refreshed for plugin to become visible
