@@ -6,7 +6,7 @@ Voice profile plugin for Claude Code. Analyzes writing samples, builds a style p
 
 - **Plugin manifest**: `.claude-plugin/plugin.json`
 - **MCP server**: `server/` (TypeScript, Node)
-- **Build**: `cd server && npm install --cache /tmp/npm-cache && npx tsc`
+- **Build**: `cd server && npm install --cache /tmp/npm-cache && npm run build`
 - **Version locations**: `.claude-plugin/plugin.json`, `server/package.json`, marketplace entry
 - **Bump version**: `scripts/bump-version.sh <version>` (updates all 3, commits, pushes)
 
@@ -24,8 +24,9 @@ commands/                    → /interfluence router
 ## Per-Project Data
 
 When used, creates `.interfluence/` in the target project:
-- `voice-profile.md` — human-readable + Claude-followable voice profile
-- `config.yaml` — mode (auto/manual), scope, exclusions
+- `voice-profile.md` — base voice profile (cross-context invariants)
+- `voices/` — per-context voice deltas (e.g. `blog.md`, `docs.md`)
+- `config.yaml` — mode, scope, exclusions, voices (glob→voice routing)
 - `corpus/` — normalized writing samples
 - `corpus-index.yaml` — sample metadata
 - `learnings-raw.log` — accumulated edit diffs for batch review

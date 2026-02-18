@@ -6,7 +6,7 @@ Voice profile plugin for Claude Code. Analyzes a user's writing corpus and adapt
 
 ### MCP Server (`server/`)
 
-TypeScript server providing 9 tools for data management. Claude does all the analysis — the server just stores and serves data.
+TypeScript server providing 10 tools for data management. Claude does all the analysis — the server just stores and serves data.
 
 **Corpus tools:**
 - `corpus_add` — Add sample from file path
@@ -17,12 +17,13 @@ TypeScript server providing 9 tools for data management. Claude does all the ana
 - `corpus_remove` — Delete a sample
 
 **Profile tools:**
-- `profile_get` — Read the voice profile
-- `profile_save` — Write the voice profile
+- `profile_get(projectDir, voice?)` — Read a voice profile. Omit `voice` for base profile, or pass a voice name (e.g. `"blog"`) for a context delta from `voices/`
+- `profile_save(projectDir, content, voice?)` — Write a voice profile. Creates `voices/` dir on first named voice save
+- `profile_list(projectDir)` — List available voices (scans `voices/` directory). Includes reconciliation warnings for config/filesystem mismatches
 
 **Config tools:**
-- `config_get` — Read config (mode, scope, exclusions)
-- `config_save` — Update config
+- `config_get` — Read config (mode, scope, exclusions, voices)
+- `config_save` — Update config. Accepts optional `voices` array (ordered `VoiceConfig[]` — replaces entire array, not merged, to preserve first-match-wins ordering)
 
 **Learning tools:**
 - `learnings_append` — Log an edit diff
@@ -30,6 +31,21 @@ TypeScript server providing 9 tools for data management. Claude does all the ana
 - `learnings_clear_raw` — Clear processed diffs
 
 All tools take `projectDir` as the first parameter — this is the absolute path to the project where `.interfluence/` lives (the target project, not the plugin itself).
+
+### Voice Resolution (`server/src/utils/voice-resolution.ts`)
+
+Provides `resolveVoice(filePath, voices)` — iterates an ordered `VoiceConfig[]` array, returning the first voice whose glob patterns (via `minimatch`) match the file path. Returns `null` for base fallback. Used by the apply skill for automatic voice selection from file paths.
+
+```typescript
+interface VoiceConfig { name: string; applyTo: string[]; }
+```
+
+### Voice Path Helpers (`server/src/utils/paths.ts`)
+
+- `getVoiceProfilePath(projectDir, voice?)` — returns `voice-profile.md` for base, `voices/{voice}.md` for named voices
+- `getVoicesDir(projectDir)` — returns `voices/` path (does NOT auto-create)
+- `listVoices(projectDir)` — scans filesystem, returns `["base", ...voice_files]`
+- `isValidVoiceName(name)` — validates alphanumeric + hyphens, 2-32 chars
 
 ### Skills (`skills/`)
 
@@ -68,10 +84,17 @@ Routes `/interfluence <subcommand>` to the appropriate skill. Shows status overv
 ```bash
 cd server
 npm install --cache /tmp/npm-cache   # Workaround for claude-user npm cache permissions
-npx tsc                               # Compiles to server/dist/
+npm run build                         # tsc + esbuild → server/dist/bundle.js
 ```
 
-The MCP server entry in plugin.json points to `${CLAUDE_PLUGIN_DIR}/server/dist/index.js`.
+The MCP server entry in plugin.json points to `${CLAUDE_PLUGIN_ROOT}/server/dist/bundle.js`.
+
+### Dependencies
+
+- `@modelcontextprotocol/sdk` — MCP server framework
+- `js-yaml` — YAML parse/dump for config and corpus index
+- `minimatch` — Glob pattern matching for voice resolution
+- `turndown` — HTML-to-markdown (declared but currently unused)
 
 ## Version Management
 
@@ -98,8 +121,11 @@ When a user runs `/interfluence ingest` in their project, this structure is crea
 ```
 their-project/
 └── .interfluence/
-    ├── voice-profile.md      # The heart — prose descriptions + examples
-    ├── config.yaml           # mode: auto|manual, scope, exclusions
+    ├── voice-profile.md      # Base voice — cross-context authorial DNA (invariants)
+    ├── voices/               # Per-context voice deltas (override specific H2 sections)
+    │   ├── blog.md           # Blog post voice overrides
+    │   └── docs.md           # Documentation voice overrides
+    ├── config.yaml           # mode, scope, exclusions, voices (glob→voice routing)
     ├── corpus/               # Normalized writing samples
     │   ├── sample-20260211-a3f2.md
     │   └── sample-20260211-b7c1.md
@@ -127,7 +153,7 @@ This format was chosen because Claude follows natural language instructions more
 | Prose voice profiles | Claude follows "uses em-dashes for asides" better than "punctuation_variety: 0.8" |
 | Batched learning | No per-edit latency/tokens; higher signal when batch-reviewed |
 | Manual mode default | Avoids surprising users; auto mode is opt-in |
-| Single profile (MVP) | Context-specific profiles (blog vs commit) deferred to post-MVP |
+| Multi-voice profiles | Base profile = cross-context invariants; named deltas override H2 sections per context. Filesystem is source of truth for voice existence; config is routing only |
 | `projectDir` on every tool call | Plugin serves data for the target project, not itself |
 
 ## Beads
@@ -143,7 +169,7 @@ bd close <id>
 
 ## Roadmap
 
-### MVP (current)
+### MVP (shipped)
 - Ingest (files, URLs)
 - Analyze (single voice profile from corpus)
 - Apply (explicit `/interfluence apply <file>`)
@@ -151,13 +177,24 @@ bd close <id>
 - Config (auto/manual mode toggle)
 - Learn (passive hook logging diffs)
 
+### v0.2.0 (in progress — code-switching)
+- Voice-aware profile storage (F1) — `profile_get`/`profile_save` with optional voice param, `profile_list` ✓
+- Config schema with voices array (F2) — ordered glob patterns, first-match-wins ✓
+- Voice analyzer comparative analysis (F3) — classify corpus, extract invariants as base, generate deltas
+- Apply skill voice resolution (F4) — auto-resolve from file path, `--voice` override, H2-section merge
+- Learning hook context tagging (F5) — tag as `CONTEXT:unknown`, resolve in refine skill
+- Skill & command updates (F6) — multi-voice compare, analyze triggers comparative flow
+
+PRD: `docs/prds/2026-02-18-interfluence-code-switching.md`
+
 ### Post-MVP
-- Context-specific voice profiles (blog vs commit vs PRD)
 - Multi-source weighting
-- `/interfluence compare` A/B testing
 - Notion API direct ingestion
 - Profile export/import
 - Incremental analysis (`--incremental` flag)
+- `--dry-run` / `--explain` for voice resolution debugging
+- `/interfluence explain-voices` (delta model education)
+- `/interfluence merge-voices` (revert to single profile)
 
 ## Operational Notes
 
