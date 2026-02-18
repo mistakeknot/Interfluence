@@ -1,19 +1,24 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync } from "fs";
 import {
   getVoiceProfilePath,
   getConfigPath,
   getLearningsRawPath,
   getLearningsPath,
+  getVoicesDir,
+  isValidVoiceName,
+  listVoices,
 } from "../utils/paths.js";
 import yaml from "js-yaml";
+import { VoiceConfig } from "../utils/voice-resolution.js";
 
 export interface interfluenceConfig {
   mode: "auto" | "manual";
   autoApplyTo: string[];
   exclude: string[];
   learnFromEdits: boolean;
+  voices?: VoiceConfig[];
 }
 
 const DEFAULT_CONFIG: interfluenceConfig = {
@@ -26,19 +31,32 @@ const DEFAULT_CONFIG: interfluenceConfig = {
 export function registerProfileTools(server: McpServer): void {
   server.tool(
     "profile_get",
-    "Get the current voice profile. Returns the full voice-profile.md content.",
+    "Get a voice profile. Without voice param, returns the base profile. With voice param, returns the named voice delta.",
     {
       projectDir: z.string().describe("Absolute path to the project directory"),
+      voice: z.string().optional().describe("Voice name (e.g. 'blog', 'docs'). Omit for base profile."),
     },
-    async ({ projectDir }) => {
-      const profilePath = getVoiceProfilePath(projectDir);
-
-      if (!existsSync(profilePath)) {
+    async ({ projectDir, voice }) => {
+      if (voice && voice !== "base" && !isValidVoiceName(voice)) {
         return {
           content: [
             {
               type: "text" as const,
-              text: "No voice profile exists yet. Use /interfluence analyze to generate one from your corpus.",
+              text: `Invalid voice name "${voice}". Use lowercase alphanumeric and hyphens, 2-32 characters.`,
+            },
+          ],
+        };
+      }
+
+      const profilePath = getVoiceProfilePath(projectDir, voice);
+
+      if (!existsSync(profilePath)) {
+        const label = voice && voice !== "base" ? `Voice profile "${voice}"` : "Base voice profile";
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `${label} does not exist. ${voice && voice !== "base" ? `Expected at: ${profilePath}` : "Use /interfluence analyze to generate one from your corpus."}`,
             },
           ],
         };
@@ -53,22 +71,88 @@ export function registerProfileTools(server: McpServer): void {
 
   server.tool(
     "profile_save",
-    "Save or update the voice profile. Writes the full voice-profile.md content.",
+    "Save or update a voice profile. Without voice param, saves the base profile. With voice param, saves a voice delta to voices/ directory.",
     {
       projectDir: z.string().describe("Absolute path to the project directory"),
       content: z.string().describe("The full voice profile markdown content"),
+      voice: z.string().optional().describe("Voice name (e.g. 'blog', 'docs'). Omit for base profile."),
     },
-    async ({ projectDir, content }) => {
-      const profilePath = getVoiceProfilePath(projectDir);
+    async ({ projectDir, content, voice }) => {
+      if (voice && voice !== "base" && !isValidVoiceName(voice)) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Invalid voice name "${voice}". Use lowercase alphanumeric and hyphens, 2-32 characters.`,
+            },
+          ],
+        };
+      }
+
+      const profilePath = getVoiceProfilePath(projectDir, voice);
+
+      // Create voices/ directory if saving a named voice
+      if (voice && voice !== "base") {
+        const voicesDir = getVoicesDir(projectDir);
+        if (!existsSync(voicesDir)) {
+          mkdirSync(voicesDir, { recursive: true });
+        }
+      }
+
       writeFileSync(profilePath, content, "utf-8");
 
+      const label = voice && voice !== "base" ? `Voice profile "${voice}"` : "Base voice profile";
       return {
         content: [
           {
             type: "text" as const,
-            text: `Voice profile saved to ${profilePath}`,
+            text: `${label} saved to ${profilePath}`,
           },
         ],
+      };
+    },
+  );
+
+  server.tool(
+    "profile_list",
+    "List all available voice profiles. Returns base + any voices from the voices/ directory. Warns about config/filesystem mismatches.",
+    {
+      projectDir: z.string().describe("Absolute path to the project directory"),
+    },
+    async ({ projectDir }) => {
+      const voices = listVoices(projectDir);
+
+      // Check for config/filesystem reconciliation warnings
+      const warnings: string[] = [];
+      const configPath = getConfigPath(projectDir);
+      if (existsSync(configPath)) {
+        const config = yaml.load(readFileSync(configPath, "utf-8")) as interfluenceConfig;
+        if (config.voices) {
+          for (const vc of config.voices) {
+            if (!voices.includes(vc.name)) {
+              warnings.push(
+                `Warning: Config references voice "${vc.name}" but voices/${vc.name}.md not found`,
+              );
+            }
+          }
+          const configNames = config.voices.map((v) => v.name);
+          for (const v of voices) {
+            if (v !== "base" && !configNames.includes(v)) {
+              warnings.push(
+                `Info: Voice file "${v}" exists but has no routing in config (won't auto-resolve from file paths)`,
+              );
+            }
+          }
+        }
+      }
+
+      let text = `Available voices: ${JSON.stringify(voices)}`;
+      if (warnings.length > 0) {
+        text += "\n\n" + warnings.join("\n");
+      }
+
+      return {
+        content: [{ type: "text" as const, text }],
       };
     },
   );
@@ -102,15 +186,24 @@ export function registerProfileTools(server: McpServer): void {
 
   server.tool(
     "config_save",
-    "Save the interfluence configuration.",
+    "Save the interfluence configuration. The voices array replaces the entire voices config (not merged) to preserve ordering.",
     {
       projectDir: z.string().describe("Absolute path to the project directory"),
       mode: z.enum(["auto", "manual"]).optional(),
       autoApplyTo: z.array(z.string()).optional(),
       exclude: z.array(z.string()).optional(),
       learnFromEdits: z.boolean().optional(),
+      voices: z
+        .array(
+          z.object({
+            name: z.string().describe("Voice name (alphanumeric + hyphens)"),
+            applyTo: z.array(z.string()).describe("Glob patterns for file matching"),
+          }),
+        )
+        .optional()
+        .describe("Ordered array of voice configs. Replaces entire voices array if provided."),
     },
-    async ({ projectDir, mode, autoApplyTo, exclude, learnFromEdits }) => {
+    async ({ projectDir, mode, autoApplyTo, exclude, learnFromEdits, voices }) => {
       const configPath = getConfigPath(projectDir);
 
       let config: interfluenceConfig;
@@ -124,6 +217,7 @@ export function registerProfileTools(server: McpServer): void {
       if (autoApplyTo !== undefined) config.autoApplyTo = autoApplyTo;
       if (exclude !== undefined) config.exclude = exclude;
       if (learnFromEdits !== undefined) config.learnFromEdits = learnFromEdits;
+      if (voices !== undefined) config.voices = voices;
 
       writeFileSync(configPath, yaml.dump(config, { lineWidth: 120 }), "utf-8");
 

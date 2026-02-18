@@ -29942,9 +29942,9 @@ import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, unlinkS
 import { join as join2, basename, extname } from "path";
 
 // src/utils/paths.ts
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, readdirSync } from "fs";
 import { join } from "path";
-function getInterfluenceDir(projectDir) {
+function getinterfluenceDir(projectDir) {
   const dir = join(projectDir, ".interfluence");
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
@@ -29952,23 +29952,42 @@ function getInterfluenceDir(projectDir) {
   return dir;
 }
 function getCorpusDir(projectDir) {
-  const dir = join(getInterfluenceDir(projectDir), "corpus");
+  const dir = join(getinterfluenceDir(projectDir), "corpus");
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
   return dir;
 }
 function getCorpusIndexPath(projectDir) {
-  return join(getInterfluenceDir(projectDir), "corpus-index.yaml");
+  return join(getinterfluenceDir(projectDir), "corpus-index.yaml");
 }
-function getVoiceProfilePath(projectDir) {
-  return join(getInterfluenceDir(projectDir), "voice-profile.md");
+var VOICE_NAME_RE = /^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$/;
+function isValidVoiceName(name) {
+  return VOICE_NAME_RE.test(name);
+}
+function getVoicesDir(projectDir) {
+  return join(getinterfluenceDir(projectDir), "voices");
+}
+function getVoiceProfilePath(projectDir, voice) {
+  if (!voice || voice === "base") {
+    return join(getinterfluenceDir(projectDir), "voice-profile.md");
+  }
+  return join(getinterfluenceDir(projectDir), "voices", `${voice}.md`);
+}
+function listVoices(projectDir) {
+  const voicesDir = getVoicesDir(projectDir);
+  const voices = ["base"];
+  if (existsSync(voicesDir)) {
+    const files = readdirSync(voicesDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, "")).sort();
+    voices.push(...files);
+  }
+  return voices;
 }
 function getConfigPath(projectDir) {
-  return join(getInterfluenceDir(projectDir), "config.yaml");
+  return join(getinterfluenceDir(projectDir), "config.yaml");
 }
 function getLearningsRawPath(projectDir) {
-  return join(getInterfluenceDir(projectDir), "learnings-raw.log");
+  return join(getinterfluenceDir(projectDir), "learnings-raw.log");
 }
 
 // src/utils/corpus-index.ts
@@ -32865,7 +32884,7 @@ ${parts.join("\n\n")}`
 }
 
 // src/tools/profile.ts
-import { readFileSync as readFileSync3, writeFileSync as writeFileSync3, existsSync as existsSync4, appendFileSync } from "fs";
+import { readFileSync as readFileSync3, writeFileSync as writeFileSync3, existsSync as existsSync4, appendFileSync, mkdirSync as mkdirSync2 } from "fs";
 var DEFAULT_CONFIG = {
   mode: "manual",
   autoApplyTo: ["*.md", "CHANGELOG*", "docs/**"],
@@ -32875,18 +32894,30 @@ var DEFAULT_CONFIG = {
 function registerProfileTools(server2) {
   server2.tool(
     "profile_get",
-    "Get the current voice profile. Returns the full voice-profile.md content.",
+    "Get a voice profile. Without voice param, returns the base profile. With voice param, returns the named voice delta.",
     {
-      projectDir: external_exports3.string().describe("Absolute path to the project directory")
+      projectDir: external_exports3.string().describe("Absolute path to the project directory"),
+      voice: external_exports3.string().optional().describe("Voice name (e.g. 'blog', 'docs'). Omit for base profile.")
     },
-    async ({ projectDir }) => {
-      const profilePath = getVoiceProfilePath(projectDir);
-      if (!existsSync4(profilePath)) {
+    async ({ projectDir, voice }) => {
+      if (voice && voice !== "base" && !isValidVoiceName(voice)) {
         return {
           content: [
             {
               type: "text",
-              text: "No voice profile exists yet. Use /interfluence analyze to generate one from your corpus."
+              text: `Invalid voice name "${voice}". Use lowercase alphanumeric and hyphens, 2-32 characters.`
+            }
+          ]
+        };
+      }
+      const profilePath = getVoiceProfilePath(projectDir, voice);
+      if (!existsSync4(profilePath)) {
+        const label = voice && voice !== "base" ? `Voice profile "${voice}"` : "Base voice profile";
+        return {
+          content: [
+            {
+              type: "text",
+              text: `${label} does not exist. ${voice && voice !== "base" ? `Expected at: ${profilePath}` : "Use /interfluence analyze to generate one from your corpus."}`
             }
           ]
         };
@@ -32899,27 +32930,84 @@ function registerProfileTools(server2) {
   );
   server2.tool(
     "profile_save",
-    "Save or update the voice profile. Writes the full voice-profile.md content.",
+    "Save or update a voice profile. Without voice param, saves the base profile. With voice param, saves a voice delta to voices/ directory.",
     {
       projectDir: external_exports3.string().describe("Absolute path to the project directory"),
-      content: external_exports3.string().describe("The full voice profile markdown content")
+      content: external_exports3.string().describe("The full voice profile markdown content"),
+      voice: external_exports3.string().optional().describe("Voice name (e.g. 'blog', 'docs'). Omit for base profile.")
     },
-    async ({ projectDir, content }) => {
-      const profilePath = getVoiceProfilePath(projectDir);
+    async ({ projectDir, content, voice }) => {
+      if (voice && voice !== "base" && !isValidVoiceName(voice)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Invalid voice name "${voice}". Use lowercase alphanumeric and hyphens, 2-32 characters.`
+            }
+          ]
+        };
+      }
+      const profilePath = getVoiceProfilePath(projectDir, voice);
+      if (voice && voice !== "base") {
+        const voicesDir = getVoicesDir(projectDir);
+        if (!existsSync4(voicesDir)) {
+          mkdirSync2(voicesDir, { recursive: true });
+        }
+      }
       writeFileSync3(profilePath, content, "utf-8");
+      const label = voice && voice !== "base" ? `Voice profile "${voice}"` : "Base voice profile";
       return {
         content: [
           {
             type: "text",
-            text: `Voice profile saved to ${profilePath}`
+            text: `${label} saved to ${profilePath}`
           }
         ]
       };
     }
   );
   server2.tool(
+    "profile_list",
+    "List all available voice profiles. Returns base + any voices from the voices/ directory. Warns about config/filesystem mismatches.",
+    {
+      projectDir: external_exports3.string().describe("Absolute path to the project directory")
+    },
+    async ({ projectDir }) => {
+      const voices = listVoices(projectDir);
+      const warnings = [];
+      const configPath = getConfigPath(projectDir);
+      if (existsSync4(configPath)) {
+        const config2 = jsYaml.load(readFileSync3(configPath, "utf-8"));
+        if (config2.voices) {
+          for (const vc of config2.voices) {
+            if (!voices.includes(vc.name)) {
+              warnings.push(
+                `Warning: Config references voice "${vc.name}" but voices/${vc.name}.md not found`
+              );
+            }
+          }
+          const configNames = config2.voices.map((v) => v.name);
+          for (const v of voices) {
+            if (v !== "base" && !configNames.includes(v)) {
+              warnings.push(
+                `Info: Voice file "${v}" exists but has no routing in config (won't auto-resolve from file paths)`
+              );
+            }
+          }
+        }
+      }
+      let text = `Available voices: ${JSON.stringify(voices)}`;
+      if (warnings.length > 0) {
+        text += "\n\n" + warnings.join("\n");
+      }
+      return {
+        content: [{ type: "text", text }]
+      };
+    }
+  );
+  server2.tool(
     "config_get",
-    "Get the current Interfluence configuration.",
+    "Get the current interfluence configuration.",
     {
       projectDir: external_exports3.string().describe("Absolute path to the project directory")
     },
@@ -32943,15 +33031,21 @@ function registerProfileTools(server2) {
   );
   server2.tool(
     "config_save",
-    "Save the Interfluence configuration.",
+    "Save the interfluence configuration. The voices array replaces the entire voices config (not merged) to preserve ordering.",
     {
       projectDir: external_exports3.string().describe("Absolute path to the project directory"),
       mode: external_exports3.enum(["auto", "manual"]).optional(),
       autoApplyTo: external_exports3.array(external_exports3.string()).optional(),
       exclude: external_exports3.array(external_exports3.string()).optional(),
-      learnFromEdits: external_exports3.boolean().optional()
+      learnFromEdits: external_exports3.boolean().optional(),
+      voices: external_exports3.array(
+        external_exports3.object({
+          name: external_exports3.string().describe("Voice name (alphanumeric + hyphens)"),
+          applyTo: external_exports3.array(external_exports3.string()).describe("Glob patterns for file matching")
+        })
+      ).optional().describe("Ordered array of voice configs. Replaces entire voices array if provided.")
     },
-    async ({ projectDir, mode, autoApplyTo, exclude, learnFromEdits }) => {
+    async ({ projectDir, mode, autoApplyTo, exclude, learnFromEdits, voices }) => {
       const configPath = getConfigPath(projectDir);
       let config2;
       if (existsSync4(configPath)) {
@@ -32963,6 +33057,7 @@ function registerProfileTools(server2) {
       if (autoApplyTo !== void 0) config2.autoApplyTo = autoApplyTo;
       if (exclude !== void 0) config2.exclude = exclude;
       if (learnFromEdits !== void 0) config2.learnFromEdits = learnFromEdits;
+      if (voices !== void 0) config2.voices = voices;
       writeFileSync3(configPath, jsYaml.dump(config2, { lineWidth: 120 }), "utf-8");
       return {
         content: [
