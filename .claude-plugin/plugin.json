@@ -6,6 +6,19 @@
     "name": "mistakeknot",
     "email": "mistakeknot@vibeguider.org"
   },
+  "skills": [
+    "./skills/analyze.md",
+    "./skills/apply.md",
+    "./skills/compare.md",
+    "./skills/ingest.md",
+    "./skills/refine.md"
+  ],
+  "commands": [
+    "./commands/interfluence.md"
+  ],
+  "agents": [
+    "./agents/voice-analyzer.md"
+  ],
   "hooks": "./hooks/hooks.json",
   "mcpServers": {
     "interfluence": {
