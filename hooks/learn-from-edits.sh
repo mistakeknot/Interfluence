@@ -56,7 +56,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 cat >> "$LOG_FILE" << ENTRY
 
---- ${TIMESTAMP} | ${RELATIVE_PATH} ---
+--- ${TIMESTAMP} | ${RELATIVE_PATH} | CONTEXT:unknown ---
 OLD: ${OLD_STRING}
 NEW: ${NEW_STRING}
 ENTRY
