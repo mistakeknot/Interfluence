@@ -1,17 +1,13 @@
 {
   "name": "interfluence",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Analyze your writing style and adapt Claude's output to sound like you. Ingest writing samples, build a voice profile, and apply it to any human-facing documentation or copy.",
   "author": {
     "name": "mistakeknot",
     "email": "mistakeknot@vibeguider.org"
   },
   "skills": [
-    "./skills/analyze.md",
-    "./skills/apply.md",
-    "./skills/compare.md",
-    "./skills/ingest.md",
-    "./skills/refine.md"
+    "./skills"
   ],
   "commands": [
     "./commands/interfluence.md"
@@ -19,7 +15,6 @@
   "agents": [
     "./agents/voice-analyzer.md"
   ],
-  "hooks": "./hooks/hooks.json",
   "mcpServers": {
     "interfluence": {
       "type": "stdio",
