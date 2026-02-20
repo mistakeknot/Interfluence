@@ -54,9 +54,11 @@ fi
 LOG_FILE="$INTERFLUENCE_DIR/learnings-raw.log"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-cat >> "$LOG_FILE" << ENTRY
+# Use a unique delimiter that can't appear in edited content
+_DELIM="__INTERFLUENCE_EOF_$(date +%s%N)__"
+cat >> "$LOG_FILE" << "$_DELIM"
 
 --- ${TIMESTAMP} | ${RELATIVE_PATH} | CONTEXT:unknown ---
 OLD: ${OLD_STRING}
 NEW: ${NEW_STRING}
-ENTRY
+$_DELIM
