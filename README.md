@@ -16,9 +16,15 @@ There's also a passive learning hook that quietly logs your edit diffs whenever 
 
 ## Getting Started
 
-Install from the interagency marketplace:
+First, add the [interagency marketplace](https://github.com/mistakeknot/interagency-marketplace) (one-time setup):
 
+```bash
+/plugin marketplace add mistakeknot/interagency-marketplace
 ```
+
+Then install the plugin:
+
+```bash
 /plugin install interfluence
 ```
 
