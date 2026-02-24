@@ -5,3 +5,5 @@ node_modules/
 # dist/ is gitignored except for the bundle (required for plugin install)
 server/dist/*
 !server/dist/bundle.js
+
+.beads/
