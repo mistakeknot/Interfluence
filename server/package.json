@@ -1,6 +1,6 @@
 {
   "name": "interfluence-server",
-  "version": "0.2.7",
+  "version": "0.1.8",
   "description": "MCP server for interfluence corpus management",
   "type": "module",
   "main": "dist/index.js",

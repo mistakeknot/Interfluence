@@ -1,6 +1,6 @@
 {
   "name": "interfluence",
-  "version": "0.2.7",
+  "version": "0.1.8",
   "description": "Analyze your writing style and adapt Claude's output to sound like you. Ingest writing samples, build a voice profile, and apply it to any human-facing documentation or copy.",
   "author": {
     "name": "mistakeknot",
