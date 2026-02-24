@@ -4,9 +4,9 @@ A Claude Code plugin that learns how you write and makes Claude sound like you.
 
 ## What This Is
 
-Claude is excellent at generating documentation, READMEs, commit messages, and all the other text artifacts that accrue around a software project — but it doesn't sound like *me*. It sounds like a helpful, slightly over-eager assistant who has read too many style guides and not enough actual blog posts. interfluence fixes that.
+Claude is excellent at generating documentation, READMEs, commit messages, and all the other text artifacts that accrue around a software project — but it doesn't sound like *you*. It sounds like a helpful, slightly over-eager assistant who has read too many style guides and not enough actual blog posts. interfluence fixes that.
 
-You feed it samples of your writing (blog posts, docs, even emails if you're feeling brave), it builds a voice profile, and then you can apply that profile to anything Claude generates. The profile is prose, not numbers — turns out Claude follows "use em dashes for mid-sentence pivots and drop cultural references without explaining them" much better than "formality: 0.6, humor: 0.4."
+You feed it samples of your writing (blog posts, docs, even emails), it builds a voice profile, and then you can apply that profile to anything Claude generates. The profile is prose, not numbers — turns out Claude follows "use em dashes for mid-sentence pivots and drop cultural references without explaining them" much better than "formality: 0.6, humor: 0.4."
 
 ## How It Works
 
@@ -61,7 +61,7 @@ autoApplyTo:
   - "docs/**"
 ```
 
-But starting in manual mode and running `/interfluence compare` a few times first is the way to go. In this house, we believe in verifying the vibes before automating them.
+But starting in manual mode and running `/interfluence compare` a few times first is the way to go. Verify the vibes before automating them.
 
 ## Design Decisions
 
