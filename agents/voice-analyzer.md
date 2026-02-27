@@ -1,7 +1,7 @@
 ---
 description: Deep analysis agent for generating voice profiles from writing corpora. Use when analyzing writing samples to produce or update a voice profile.
 allowed-tools: mcp_interfluence_corpus_get_all, mcp_interfluence_corpus_get, mcp_interfluence_corpus_list, mcp_interfluence_profile_get, mcp_interfluence_profile_save, mcp_interfluence_profile_list, mcp_interfluence_learnings_get_raw, mcp_interfluence_config_get
-model: opus
+model: sonnet
 ---
 
 # Voice Analyzer Agent
