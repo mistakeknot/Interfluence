@@ -7,7 +7,11 @@
     "email": "mistakeknot@vibeguider.org"
   },
   "skills": [
-    "./skills"
+    "./skills/analyze",
+    "./skills/apply",
+    "./skills/compare",
+    "./skills/ingest",
+    "./skills/refine"
   ],
   "commands": [
     "./commands/interfluence.md"

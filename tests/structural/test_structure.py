@@ -4,8 +4,6 @@ import json
 import os
 from pathlib import Path
 
-import pytest
-
 
 def test_plugin_json_valid(project_root):
     """plugin.json is valid JSON with required fields."""
@@ -17,7 +15,6 @@ def test_plugin_json_valid(project_root):
     assert data["name"] == "interfluence"
 
 
-@pytest.mark.xfail(reason="interfluence uses flat skills/*.md pattern, not skills/X/SKILL.md")
 def test_plugin_json_skills_match_filesystem(project_root, plugin_json):
     """Every skill listed in plugin.json exists on disk."""
     for skill_path in plugin_json.get("skills", []):
