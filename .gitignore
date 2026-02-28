@@ -7,3 +7,4 @@ server/dist/*
 !server/dist/bundle.js
 
 .beads/
+__pycache__/
