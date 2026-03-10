@@ -32,7 +32,7 @@ Then:
 
 1. **Ingest your writing**: `/interfluence ingest`: point it at files, directories, or URLs. More samples means a better profile, but even a single long blog post gives it enough to work with.
 
-2. **Analyze**: `/interfluence analyze`: this runs the voice analyzer agent, which reads your entire corpus and produces a detailed prose profile covering sentence structure, vocabulary, tone, cultural references, and anti-patterns (things your voice would *never* do).
+2. **Analyze**: `/interfluence:voice-analyze`: this runs the voice analyzer agent, which reads your entire corpus and produces a detailed prose profile covering sentence structure, vocabulary, tone, cultural references, and anti-patterns (things your voice would *never* do).
 
 3. **Apply**: `/interfluence apply`: take any AI-generated content and rewrite it in your voice. You can also run `/interfluence compare` to see the original and voice-adapted versions side by side, which is helpful for calibrating how aggressive you want the restyling to be.
 

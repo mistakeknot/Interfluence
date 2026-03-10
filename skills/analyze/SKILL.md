@@ -1,4 +1,5 @@
 ---
+name: voice-analyze
 description: Generate or update a voice profile from the writing corpus. Use when the user says "analyze my writing", "build voice profile", "analyze", or "generate voice profile".
 allowed-tools: mcp_interfluence_corpus_get_all, mcp_interfluence_corpus_list, mcp_interfluence_profile_get, mcp_interfluence_profile_save, mcp_interfluence_profile_list, mcp_interfluence_learnings_get_raw, Task
 ---

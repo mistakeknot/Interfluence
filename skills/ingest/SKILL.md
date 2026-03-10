@@ -22,7 +22,7 @@ You are ingesting writing samples into the interfluence corpus for voice analysi
 
 3. **After ingestion:**
    - Show the user what was added (title, word count, sample ID)
-   - If this is the first sample, suggest running `/interfluence analyze` to generate a voice profile
+   - If this is the first sample, suggest running `/interfluence:voice-analyze` to generate a voice profile
    - If a voice profile already exists, suggest re-running analysis to incorporate the new sample
 
 ## Important
